@@ -1,5 +1,4 @@
 ## Datanyze test task
-=========
 [![Build status](https://travis-ci.org/silazare/ansible-uwsgi-deploy.svg?branch=master)](https://travis-ci.org/silazare)
 
 
