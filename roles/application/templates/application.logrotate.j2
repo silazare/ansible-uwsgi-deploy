@@ -1,0 +1,13 @@
+{{ log_directory }}/application.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        notifempty
+        create 640 www-data adm
+        sharedscripts
+        postrotate
+                systemctl reload application
+        endscript
+}

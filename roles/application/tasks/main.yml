@@ -1,0 +1,82 @@
+---
+- name: Install packages
+  apt:
+    name: '{{ packages }}'
+    state: present
+    update_cache: true
+    force_apt_get: true
+
+- name: Create directories
+  file:
+    path: '{{ item }}'
+    state: directory
+    mode: 0755
+  loop:
+    - '{{ base_directory }}'
+    - '{{ application_directory }}'
+    - '{{ application_directory }}/venv'
+    - '{{ log_directory }}'
+
+- name: Create virtual environment
+  command: /usr/bin/virtualenv -p python3 {{ application_directory }}/venv
+  args:
+    creates: '{{ application_directory }}/venv/bin/python3'
+
+- name: Copy application files
+  copy:
+    src: application/
+    dest: '{{ application_directory }}'
+    mode: 0755
+    directory_mode: true
+  notify: restart application
+
+- name: Install application requirements
+  pip:
+    requirements: '{{ application_directory }}/requirements.txt'
+    virtualenv: '{{ application_directory }}/venv'
+  notify: restart application
+
+- name: Copy uwsgi.ini
+  template:
+    src: uwsgi.ini.j2
+    dest: '{{ application_directory }}/uwsgi.ini'
+  notify: restart application
+
+- name: Install application systemd service
+  template:
+    src: application.service.j2
+    dest: /etc/systemd/system/application.service
+  notify: restart application
+
+- name: Create logrotate config for application logs
+  template:
+    src: application.logrotate.j2
+    dest: /etc/logrotate.d/application.logrotate
+  notify: restart application
+
+- name: Create logrotate config for nginx logs
+  template:
+    src: nginx.logrotate.j2
+    dest: /etc/logrotate.d/nginx.logrotate
+  notify: restart nginx
+
+- name: Create nginx config
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify: restart nginx
+
+- name: force all notified handlers to run
+  meta: flush_handlers
+
+- name: Make sure application started and enabled
+  systemd:
+    name: application
+    state: started
+    enabled: true
+
+- name: Make sure nginx started and enabled
+  systemd:
+    name: nginx
+    state: started
+    enabled: true

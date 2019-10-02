@@ -1,0 +1,4 @@
+*cloudimg-console.log
+*.retry
+description.txt
+.vagrant/

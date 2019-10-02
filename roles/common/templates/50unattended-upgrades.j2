@@ -1,0 +1,9 @@
+Unattended-Upgrade::Allowed-Origins {
+         "${distro_id}:${distro_codename}-security";
+};
+
+Unattended-Upgrade::Package-Blacklist {
+         "nginx";
+};
+
+Unattended-Upgrade::Remove-Unused-Dependencies "true";

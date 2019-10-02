@@ -1,0 +1,52 @@
+---
+- name: Remove update lock file
+  file:
+    path: /.ubuntu_update
+    state: absent
+  when: force_execution
+
+- name: Check if system was already updated
+  stat:
+    path: /.ubuntu_update
+  register: ubuntu_update
+
+- name: Update all packages to the latest version
+  apt:
+    upgrade: dist
+    cache_valid_time: 3600
+    force_apt_get: true
+    update_cache: true
+  when: not ubuntu_update.stat.exists
+
+- name: Check if reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+  when: not ubuntu_update.stat.exists
+
+- name: Reboot server
+  shell: sleep 5 && shutdown -r now "Ansible reboot"
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when:
+    - reboot_required_file.stat is defined
+    - reboot_required_file.stat.exists
+
+- name: Wait for server to come up
+  wait_for_connection:
+    connect_timeout: 20
+    sleep: 5
+    delay: 15
+    timeout: 300
+  when:
+    - reboot_required_file.stat is defined
+    - reboot_required_file.stat.exists
+
+- name: Create update lock file
+  file:
+    path: /.ubuntu_update
+    state: touch
+  when:
+    - not force_execution
+    - not ubuntu_update.stat.exists

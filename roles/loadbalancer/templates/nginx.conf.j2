@@ -1,0 +1,26 @@
+user nginx;
+worker_processes auto;
+pid /var/run/nginx.pid;
+
+events {
+  worker_connections 4096;
+}
+
+http {
+  access_log {{ log_directory }}/nginx-access.log;
+
+
+  upstream application {
+{% for host in groups['application']|sort %}
+    server {{ host }} fail_timeout=10s max_fails=2 weight=10;
+{% endfor %}
+}
+
+  server {
+    listen 80;
+
+    location / {
+      proxy_pass http://application;
+    }
+  }
+}

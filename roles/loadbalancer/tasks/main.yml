@@ -1,0 +1,26 @@
+---
+- name: Create nginx config for loadbalancer
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify: restart nginx
+
+- name: Create log directory
+  file:
+    path: '{{ log_directory }}'
+    state: directory
+
+- name: Create logrotate config for loadbalancer logs
+  template:
+    src: nginx.logrotate.j2
+    dest: /etc/logrotate.d/nginx.logrotate
+  notify: restart nginx
+
+- name: force all notified handlers to run
+  meta: flush_handlers
+
+- name: Make sure nginx started and enabled
+  systemd:
+    name: nginx
+    state: started
+    enabled: true

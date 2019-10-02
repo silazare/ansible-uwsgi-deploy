@@ -1,0 +1,44 @@
+---
+- name: Provision all servers
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Check Ansible IPv4 addresses
+      assert:
+        that:
+        - "ansible_enp0s8['ipv4']['address'] | ipv4"
+        - "virtual_ip | ipv4"
+
+    - name: Check Ansible Hostvars
+      assert:
+        that:
+          - "hostvars['{{ item }}']['ansible_enp0s8']['ipv4']['address'] | ipv4"
+      loop: "{{ groups['all'] }}"
+
+  roles:
+    - role: ubuntu-upgrade
+    - role: common
+    - role: nginx
+
+- name: Provision application servers
+  hosts: application
+  become: true
+  serial:
+   - 1
+   - "20%"
+
+  roles:
+    - role: application
+
+
+- name: Provision loadbalancers
+  hosts: loadbalancer
+  become: true
+  serial:
+    - 1
+    - "20%"
+
+  roles:
+    - role: loadbalancer
+    - role: keepalived

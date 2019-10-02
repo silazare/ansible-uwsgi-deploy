@@ -1,0 +1,16 @@
+---
+- name: Add nginx repository key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: ABF5BD827BD9BF62
+
+- name: Add nginx repository
+  apt_repository:
+    repo: deb http://nginx.org/packages/ubuntu/ {{ ansible_distribution_release }} nginx
+
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

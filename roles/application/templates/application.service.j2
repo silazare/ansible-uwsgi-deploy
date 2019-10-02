@@ -1,0 +1,9 @@
+[Unit]
+Description=uWSGI instance to serve python application
+
+[Service]
+ExecStartPre=-/bin/bash -c 'mkdir -p {{ application_socket | dirname }}; chown nginx:nginx /run/uwsgi'
+ExecStart=/bin/bash -c 'cd {{ application_directory }}; source venv/bin/activate; uwsgi --ini uwsgi.ini'
+
+[Install]
+WantedBy=multi-user.target
