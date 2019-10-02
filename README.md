@@ -1,5 +1,5 @@
 ## Datanyze test task
-[![Build status](https://travis-ci.com/silazare/ansible-uwsgi-deploy.svg?)](https://travis-ci.org/silazare)
+[![Build status](https://travis-ci.com/silazare/ansible-uwsgi-deploy.svg?token=X8ywRVhk4yLzpqNRZex3&branch=master)](https://travis-ci.org/silazare)
 
 
 ### Requirements
