@@ -13,7 +13,7 @@ before_install:
   - git clone https://github.com/lean-delivery/ansible-lint-rules.git ~/ansible-lint-rules
 
 install:
-  - pip3 install ansible-lint==4.2.0 yamllint==1.15.0
+  - pip3 install ansible-lint==4.2.0 yamllint==1.21.0
   - ansible-lint --version
 
 script:
